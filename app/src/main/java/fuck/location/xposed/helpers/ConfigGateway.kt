@@ -266,7 +266,7 @@ class ConfigGateway private constructor() {
         val json = try {
             universalAPICaller("None", 2) as String
         } catch (e: Exception) {
-            XposedBridge.log("FL: Failed to read package list. Fallback to []")
+            SafeLog.e("Failed to read package list. Fallback to []", e)
             "[]"
         }
 
@@ -279,7 +279,7 @@ class ConfigGateway private constructor() {
         val json = try {
             universalAPICaller("None", 4) as String
         } catch (e: Exception) {
-            XposedBridge.log("FL: Failed to read fake location. Fallback to {\"x\":0.0, \"y\":0.0, \"eci\":0, \"pci\":0, \"tac\":0, \"earfcn\":0, \"bandwidth\":0}")
+            SafeLog.e("Failed to read fake location. Fallback to default", e)
             "{\"x\":0.0, \"y\":0.0, \"eci\":0, \"pci\":0, \"tac\":0, \"earfcn\":0, \"bandwidth\":0}"
         }
 

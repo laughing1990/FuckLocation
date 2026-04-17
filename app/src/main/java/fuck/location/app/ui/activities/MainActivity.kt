@@ -19,6 +19,7 @@ import fuck.location.databinding.ActivityMainBinding
 
 import fuck.location.xposed.helpers.ConfigGateway
 import java.text.NumberFormat
+import android.widget.Toast
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var binding: ActivityMainBinding
@@ -71,7 +72,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             customView(R.layout.custom_view_fakelocation, scrollable = true, horizontalPadding = true)
 
             ConfigGateway.get().setCustomContext(applicationContext)
-            val previousFakeLocation = ConfigGateway.get().readFakeLocation()
+
+            // 添加异常保护，防止 Android 13+ 上隐藏 API 调用失败导致崩溃
+            val previousFakeLocation = try {
+                ConfigGateway.get().readFakeLocation()
+            } catch (e: Exception) {
+                android.util.Log.e("MainActivity", "Failed to read fake location", e)
+                Toast.makeText(this@MainActivity, R.string.dialog_not_available_content, Toast.LENGTH_SHORT).show()
+                null
+            }
 
             val previousYInput = previousFakeLocation?.y
             val previousXInput = previousFakeLocation?.x
@@ -122,16 +131,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 earfcnInput.setText(earfcnInput.text.takeIf { earfcnInput.text.isNotEmpty() } ?: "0")
                 bandwidthInput.setText(bandwidthInput.text.takeIf { bandwidthInput.text.isNotEmpty() } ?: "0")
 
-                ConfigGateway.get().writeFakeLocation(
-                    xInput.text.toString().toDouble(),
-                    yInput.text.toString().toDouble(),
-                    offsetInput.text.toString().toDouble(),
-                    eciInput.text.toString().toInt(),
-                    pciInput.text.toString().toInt(),
-                    tacInput.text.toString().toInt(),
-                    earfcnInput.text.toString().toInt(),
-                    bandwidthInput.text.toString().toInt()
-                )
+                try {
+                    ConfigGateway.get().writeFakeLocation(
+                        xInput.text.toString().toDouble(),
+                        yInput.text.toString().toDouble(),
+                        offsetInput.text.toString().toDouble(),
+                        eciInput.text.toString().toInt(),
+                        pciInput.text.toString().toInt(),
+                        tacInput.text.toString().toInt(),
+                        earfcnInput.text.toString().toInt(),
+                        bandwidthInput.text.toString().toInt()
+                    )
+                } catch (e: Exception) {
+                    android.util.Log.e("MainActivity", "Failed to write fake location", e)
+                    Toast.makeText(this@MainActivity, R.string.dialog_not_available_content, Toast.LENGTH_SHORT).show()
+                }
             }
             negativeButton(R.string.custom_location_dialog_notsave)
         }

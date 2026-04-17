@@ -335,6 +335,7 @@ class ConfigGateway private constructor() {
         val fields = HiddenApiBypass.getInstanceFields(callerIdentity.javaClass)
 
         val targetFieldName = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> "private final java.lang.String android.location.util.identity.CallerIdentity.mPackageName"
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> "private final java.lang.String android.location.util.identity.CallerIdentity.mPackageName"
             Build.VERSION.SDK_INT == Build.VERSION_CODES.R -> "public final java.lang.String com.android.server.location.CallerIdentity.packageName"
             Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> "public final java.lang.String com.android.server.location.CallerIdentity.mPackageName"

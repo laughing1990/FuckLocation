@@ -18,6 +18,7 @@ import fuck.location.xposed.helpers.workround.Oplus
 import fuck.location.xposed.location.LocationHookerAfterS
 import fuck.location.xposed.location.LocationHookerPreQ
 import fuck.location.xposed.location.LocationHookerR
+import fuck.location.xposed.location.LocationHookerT
 import fuck.location.xposed.location.WLANHooker
 import fuck.location.xposed.location.gnss.GnssHookerPreQ
 import fuck.location.xposed.location.gnss.GnssManagerServiceHookerR
@@ -70,7 +71,20 @@ class HookEntry : IXposedHookZygoteInit, IXposedHookLoadPackage {
 
                         // For Android 12 and MIUI, run this hook
                         when (Build.VERSION.SDK_INT) {
+                            Build.VERSION_CODES.TIRAMISU -> {
+                                // Android 13 (API 33)
+                                if (Miui().isMIUI()) {
+                                    MiuiBlurLocationManagerHookerS().hookGetBlurryLocationS(lpparam)
+                                } else if (Oplus().isOplus()) {
+                                    NlpDLCS().hookColorOS(lpparam)
+                                }
+                                LocationHookerT().hookLastLocation(lpparam)
+                                LocationHookerT().hookDLC(lpparam)
+
+                                GnssManagerServiceHookerS().hookRegisterGnssNmeaCallback(lpparam)
+                            }
                             Build.VERSION_CODES.S -> {
+                                // Android 12 (API 31)
                                 if (Miui().isMIUI()) {
                                     MiuiBlurLocationManagerHookerS().hookGetBlurryLocationS(lpparam)
                                 } else if (Oplus().isOplus()) {
